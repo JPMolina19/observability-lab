@@ -1,0 +1,43 @@
+groups:
+  - name: application-alerts
+    rules:
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(app_requests_total{status="500"}[2m]))
+            /
+            sum(rate(app_requests_total[2m]))
+          ) > 0.05
+
+        for: 2m
+
+        labels:
+          severity: critical
+
+        annotations:
+          summary: "High application error rate"
+          description: "More than 5% of application requests are returning HTTP 500 errors."
+
+      - alert: ApplicationDown
+        expr: up{job="observability-app"} == 0
+        for: 1m
+
+        labels:
+          severity: critical
+
+        annotations:
+          summary: "Application is down"
+          description: "Prometheus cannot scrape the application."
+
+      - alert: HighRequestVolume
+        expr: |
+          rate(app_requests_total[1m]) > 0.5
+        for: 1m
+
+        labels:
+          severity: warning
+
+        annotations:
+          summary: "High request volume"
+          description: "The application is receiving an unusually high request rate."

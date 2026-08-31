@@ -1,0 +1,29 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ["alertname", "severity"]
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 4h
+
+  receiver: "default-receiver"
+
+  routes:
+
+    - matchers:
+        - severity="critical"
+      receiver: "critical-receiver"
+
+    - matchers:
+        - severity="warning"
+      receiver: "warning-receiver"
+
+
+receivers:
+
+  - name: "default-receiver"
+
+  - name: "critical-receiver"
+
+  - name: "warning-receiver"
