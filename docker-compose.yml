@@ -26,6 +26,12 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
+
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+
     depends_on:
       - prometheus
 
@@ -40,3 +46,6 @@ services:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
     depends_on:
       - prometheus
+
+volumes:
+  grafana-storage:

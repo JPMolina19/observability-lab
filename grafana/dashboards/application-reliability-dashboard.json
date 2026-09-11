@@ -16,7 +16,8 @@
           "name": "Annotations & Alerts",
           "query": {
             "datasource": {
-              "name": "-- Grafana --"
+              "type": "prometheus",
+              "uid": "prometheus"
             },
             "group": "grafana",
             "kind": "DataQuery",
@@ -42,7 +43,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
@@ -156,7 +158,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
@@ -271,7 +274,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
@@ -355,7 +359,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
@@ -457,7 +462,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
@@ -541,7 +547,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
@@ -656,7 +663,8 @@
                     "hidden": false,
                     "query": {
                       "datasource": {
-                        "name": "afwuwl05b8ykgc"
+                        "type": "prometheus",
+                        "uid": "prometheus"
                       },
                       "group": "prometheus",
                       "kind": "DataQuery",
