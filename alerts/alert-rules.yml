@@ -41,3 +41,20 @@ groups:
         annotations:
           summary: "High request volume"
           description: "The application is receiving an unusually high request rate."
+
+      - alert: HighSLOBurnRate
+        expr: |
+          (
+            1 - avg_over_time(up{job="observability-app"}[1h])
+          )
+          /
+          (1 - 0.995)
+          > 14
+        for: 5m
+
+        labels:
+          severity: critical
+
+        annotations:
+          summary: "High SLO burn rate detected"
+          description: "The service is consuming the availability error budget too quickly."
