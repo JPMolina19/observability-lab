@@ -14,9 +14,13 @@ rule_files:
 scrape_configs:
 
   - job_name: "observability-app"
-
     metrics_path: /metrics
-
     static_configs:
       - targets:
           - "app:5000"
+  
+  - job_name: "synthetic-monitor"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "synthetic-monitor:8000"

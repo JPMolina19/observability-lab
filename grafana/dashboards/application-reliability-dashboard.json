@@ -5,8 +5,8 @@
     "name": "adw2bv6",
     "namespace": "default",
     "uid": "0d07ec49-9753-4d06-a3f0-cfa820fafa99",
-    "resourceVersion": "1789138671460001",
-    "generation": 2,
+    "resourceVersion": "1789143065162985",
+    "generation": 3,
     "creationTimestamp": "2026-09-11T14:35:06Z",
     "labels": {
       "grafana.app/deprecatedInternalID": "4246246960615424"
@@ -16,11 +16,11 @@
       "grafana.app/folder": "efxxvu1id8u80c",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "default",
-      "grafana.app/sourceChecksum": "c21785356fe32c8a982ba7c4f90d5b14",
+      "grafana.app/sourceChecksum": "4c15ec1902edebcf88c208ced2414e6f",
       "grafana.app/sourcePath": "/var/lib/grafana/dashboards/application-reliability-dashboard.json",
-      "grafana.app/sourceTimestamp": "1789138050000",
+      "grafana.app/sourceTimestamp": "1789143052000",
       "grafana.app/updatedBy": "access-policy:service",
-      "grafana.app/updatedTimestamp": "2026-09-11T14:57:51Z",
+      "grafana.app/updatedTimestamp": "2026-09-11T16:11:05Z",
       "grafana.app/folderTitle": "SRE Dashboards",
       "grafana.app/folderUrl": "/dashboards/f/efxxvu1id8u80c/sre-dashboards"
     }
@@ -354,6 +354,337 @@
                 "showPercentChange": false,
                 "textMode": "auto",
                 "wideLayout": true
+              }
+            },
+            "version": "13.2.0"
+          }
+        }
+      },
+      "panel-12": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "synthetic_check_success",
+                        "legendFormat": "__auto",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 12,
+          "links": [],
+          "title": "Synthetic Availability",
+          "vizConfig": {
+            "group": "stat",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "mappings": [
+                    {
+                      "options": {
+                        "0": {
+                          "color": "red",
+                          "index": 1,
+                          "text": "FAILED"
+                        },
+                        "1": {
+                          "color": "green",
+                          "index": 0,
+                          "text": "AVAILABLE"
+                        }
+                      },
+                      "type": "value"
+                    }
+                  ],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              },
+              "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": "",
+                  "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+              }
+            },
+            "version": "13.2.0"
+          }
+        }
+      },
+      "panel-13": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "synthetic_response_time_seconds",
+                        "legendFormat": "__auto",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 13,
+          "links": [],
+          "title": "Synthetic Response Time",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 25,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "s"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              }
+            },
+            "version": "13.2.0"
+          }
+        }
+      },
+      "panel-14": {
+        "kind": "Panel",
+        "spec": {
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "(1 - avg_over_time(synthetic_check_success[5m])) * 100",
+                        "legendFormat": "__auto",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                }
+              ],
+              "queryOptions": {},
+              "transformations": []
+            }
+          },
+          "description": "",
+          "id": 14,
+          "links": [],
+          "title": "Synthetic Failure Rate",
+          "vizConfig": {
+            "group": "timeseries",
+            "kind": "VizConfig",
+            "spec": {
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": 0
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percent"
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
               }
             },
             "version": "13.2.0"
@@ -1286,6 +1617,45 @@
               "width": 12,
               "x": 0,
               "y": 40
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-12"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 12,
+              "y": 40
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-13"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 0,
+              "y": 48
+            }
+          },
+          {
+            "kind": "GridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-14"
+              },
+              "height": 8,
+              "width": 12,
+              "x": 12,
+              "y": 48
             }
           }
         ]

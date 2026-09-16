@@ -9,6 +9,14 @@ services:
     ports:
       - "5000:5000"
 
+  synthetic-monitor:
+    build:
+      context: ./synthetic-monitor
+    container_name: synthetic-monitor
+    ports:
+      - "8000:8000"
+    depends_on:
+      - app
 
   prometheus:
     image: prom/prometheus:latest
