@@ -43,6 +43,11 @@ def metrics():
     )
 
 
+@app.route("/healthz")
+def healthz():
+    return "ok"
+
+
 @app.route("/error")
 def error():
     REQUEST_COUNT.labels(endpoint="/error", status="500").inc()

@@ -45,7 +45,7 @@ groups:
       - alert: HighSLOBurnRate
         expr: |
           (
-            1 - avg_over_time(up{job="observability-app"}[1h])
+            1 - avg(avg_over_time(up{job="observability-app"}[1h]))
           )
           /
           (1 - 0.995)

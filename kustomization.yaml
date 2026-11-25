@@ -1,0 +1,43 @@
+# Kubernetes deployment of the Observability Lab.
+#
+#   kubectl apply -k .
+#
+# This file lives at the repo root (manifests are in k8s/) so the ConfigMaps below are
+# generated from the SAME config files docker-compose uses: one source of truth.
+# Kustomize appends a content hash to each generated ConfigMap name, so editing any of
+# these files and re-applying triggers a rolling restart of the pods that use it.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: observability-lab
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: observability-lab
+
+resources:
+  - k8s/namespace.yaml
+  - k8s/app.yaml
+  - k8s/synthetic-monitor.yaml
+  - k8s/prometheus.yaml
+  - k8s/alertmanager.yaml
+  - k8s/grafana.yaml
+
+configMapGenerator:
+  # Prometheus uses Kubernetes pod discovery instead of the static targets in prometheus/prometheus.yml.
+  - name: prometheus-config
+    files:
+      - prometheus.yml=k8s/prometheus/prometheus.yml
+      - alert-rules.yml=alerts/alert-rules.yml
+  - name: alertmanager-config
+    files:
+      - alertmanager.yml=alertmanager/alertmanager.yml
+  - name: grafana-datasources
+    files:
+      - datasources.yml=grafana/provisioning/datasources/grafanadatasource.yml
+  - name: grafana-dashboard-providers
+    files:
+      - dashboards.yml=grafana/provisioning/dashboards/dashboards.yml
+  - name: grafana-dashboards
+    files:
+      - application-reliability-dashboard.json=grafana/dashboards/application-reliability-dashboard.json

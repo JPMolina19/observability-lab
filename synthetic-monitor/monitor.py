@@ -1,3 +1,4 @@
+import os
 import time
 import requests
 
@@ -20,7 +21,7 @@ HTTP_STATUS = Gauge(
 )
 
 
-TARGET_URL = "http://app:5000"
+TARGET_URL = os.getenv("TARGET_URL", "http://app:5000")
 
 
 def check_application():
