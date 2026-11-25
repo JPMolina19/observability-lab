@@ -1,60 +1,130 @@
+# Alerting and SLO rules for the Observability Lab.
+#
+# SLO: 99.5% of HTTP requests succeed (non-5xx) over a rolling 30 days.
+# Error budget: 0.5% of requests (~3.6h of full outage per 30 days).
+#
+# Burn-rate alerting follows the multi-window, multi-burn-rate approach from the
+# Google SRE Workbook ("Alerting on SLOs"): a long window proves the problem is
+# significant, a short window (1/12 of it) makes the alert resolve quickly once fixed.
+#
+#   Severity  Burn rate  Long / short window  Budget consumed when it fires
+#   critical  14.4x      1h  / 5m             2% in 1 hour
+#   critical  6x         6h  / 30m            5% in 6 hours
+#   warning   3x         1d  / 2h             10% in 1 day
+#   warning   1x         3d  / 6h             10% in 3 days
+
 groups:
+
+  - name: slo-recording-rules
+    rules:
+      # Error ratio = failed requests / all requests, pre-computed per window so dashboards
+      # and alerts stay cheap and consistent.
+      - record: slo:app_request_errors:ratio_rate5m
+        expr: sum(rate(app_requests_total{status=~"5.."}[5m])) / sum(rate(app_requests_total[5m]))
+      - record: slo:app_request_errors:ratio_rate30m
+        expr: sum(rate(app_requests_total{status=~"5.."}[30m])) / sum(rate(app_requests_total[30m]))
+      - record: slo:app_request_errors:ratio_rate1h
+        expr: sum(rate(app_requests_total{status=~"5.."}[1h])) / sum(rate(app_requests_total[1h]))
+      - record: slo:app_request_errors:ratio_rate2h
+        expr: sum(rate(app_requests_total{status=~"5.."}[2h])) / sum(rate(app_requests_total[2h]))
+      - record: slo:app_request_errors:ratio_rate6h
+        expr: sum(rate(app_requests_total{status=~"5.."}[6h])) / sum(rate(app_requests_total[6h]))
+      - record: slo:app_request_errors:ratio_rate1d
+        expr: sum(rate(app_requests_total{status=~"5.."}[1d])) / sum(rate(app_requests_total[1d]))
+      - record: slo:app_request_errors:ratio_rate3d
+        expr: sum(rate(app_requests_total{status=~"5.."}[3d])) / sum(rate(app_requests_total[3d]))
+      - record: slo:app_request_errors:ratio_rate30d
+        expr: sum(rate(app_requests_total{status=~"5.."}[30d])) / sum(rate(app_requests_total[30d]))
+
+      # Constants, recorded so dashboards and alerts share one definition of the SLO.
+      - record: slo:app_availability:objective
+        expr: vector(0.995)
+      - record: slo:app_error_budget:ratio
+        expr: vector(1 - 0.995)
+
+  - name: slo-alerts
+    rules:
+
+      - alert: SLOErrorBudgetBurnFast
+        expr: |
+          (
+            slo:app_request_errors:ratio_rate1h  > (14.4 * 0.005)
+            and
+            slo:app_request_errors:ratio_rate5m  > (14.4 * 0.005)
+          )
+          or
+          (
+            slo:app_request_errors:ratio_rate6h  > (6 * 0.005)
+            and
+            slo:app_request_errors:ratio_rate30m > (6 * 0.005)
+          )
+        for: 2m
+        labels:
+          severity: critical
+          slo: app-availability
+        annotations:
+          summary: "Error budget is burning fast (page)"
+          description: >-
+            The 99.5% availability SLO is burning its error budget more than 6x faster
+            than sustainable. At this rate the 30-day budget is exhausted in under 5 days.
+          runbook_url: "https://github.com/JPMolina19/observability-lab/blob/main/docs/incident-postmortem-001.md"
+
+      - alert: SLOErrorBudgetBurnSlow
+        expr: |
+          (
+            slo:app_request_errors:ratio_rate1d  > (3 * 0.005)
+            and
+            slo:app_request_errors:ratio_rate2h  > (3 * 0.005)
+          )
+          or
+          (
+            slo:app_request_errors:ratio_rate3d  > (1 * 0.005)
+            and
+            slo:app_request_errors:ratio_rate6h  > (1 * 0.005)
+          )
+        for: 15m
+        labels:
+          severity: warning
+          slo: app-availability
+        annotations:
+          summary: "Error budget is burning steadily (ticket)"
+          description: >-
+            The 99.5% availability SLO is burning its error budget faster than
+            sustainable. Not urgent, but investigate during working hours.
+          runbook_url: "https://github.com/JPMolina19/observability-lab/blob/main/docs/incident-postmortem-001.md"
+
   - name: application-alerts
     rules:
 
       - alert: HighErrorRate
         expr: |
           (
-            sum(rate(app_requests_total{status="500"}[2m]))
+            sum(rate(app_requests_total{status=~"5.."}[2m]))
             /
             sum(rate(app_requests_total[2m]))
           ) > 0.05
-
         for: 2m
-
         labels:
           severity: critical
-
         annotations:
           summary: "High application error rate"
-          description: "More than 5% of application requests are returning HTTP 500 errors."
+          description: "{{ $value | humanizePercentage }} of application requests are returning HTTP 5xx errors (threshold 5%)."
 
       - alert: ApplicationDown
         expr: up{job="observability-app"} == 0
         for: 1m
-
         labels:
           severity: critical
-
         annotations:
           summary: "Application is down"
-          description: "Prometheus cannot scrape the application."
+          description: "Prometheus cannot scrape the application target {{ $labels.instance }}."
 
       - alert: HighRequestVolume
         expr: |
-          rate(app_requests_total[1m]) > 0.5
+          sum(rate(app_requests_total[1m])) > 0.5
         for: 1m
-
         labels:
           severity: warning
-
         annotations:
           summary: "High request volume"
-          description: "The application is receiving an unusually high request rate."
-
-      - alert: HighSLOBurnRate
-        expr: |
-          (
-            1 - avg(avg_over_time(up{job="observability-app"}[1h]))
-          )
-          /
-          (1 - 0.995)
-          > 14
-        for: 5m
-
-        labels:
-          severity: critical
-
-        annotations:
-          summary: "High SLO burn rate detected"
-          description: "The service is consuming the availability error budget too quickly."
+          description: "The application is receiving {{ $value | humanize }} requests/s, above the expected baseline."

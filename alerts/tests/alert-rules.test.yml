@@ -1,0 +1,84 @@
+# Unit tests for alerts/alert-rules.yml
+#
+#   promtool test rules alerts/tests/alert-rules.test.yml
+#
+# Series notation: 'a+bxN' = start at a, add b every interval, N times.
+rule_files:
+  - ../alert-rules.yml
+
+evaluation_interval: 1m
+
+tests:
+
+  # Healthy service: 1 req/s, no errors -> no SLO alerts.
+  - interval: 1m
+    input_series:
+      - series: 'app_requests_total{endpoint="/", status="200"}'
+        values: '0+60x180'
+      - series: 'app_requests_total{endpoint="/error", status="500"}'
+        values: '0x180'
+    alert_rule_test:
+      - eval_time: 3h
+        alertname: SLOErrorBudgetBurnFast
+        exp_alerts: []
+      - eval_time: 3h
+        alertname: SLOErrorBudgetBurnSlow
+        exp_alerts: []
+      - eval_time: 3h
+        alertname: HighErrorRate
+        exp_alerts: []
+    promql_expr_test:
+      - expr: slo:app_request_errors:ratio_rate1h
+        eval_time: 3h
+        exp_samples:
+          - labels: 'slo:app_request_errors:ratio_rate1h'
+            value: 0
+
+  # Incident: after 1h of healthy traffic, a third of requests start failing.
+  - interval: 1m
+    input_series:
+      - series: 'app_requests_total{endpoint="/", status="200"}'
+        values: '0+60x120'
+      - series: 'app_requests_total{endpoint="/error", status="500"}'
+        values: '0x60 30+30x60'
+    alert_rule_test:
+      # Before the incident nothing fires.
+      - eval_time: 55m
+        alertname: SLOErrorBudgetBurnFast
+        exp_alerts: []
+      # 40 minutes in, the 1h window is well above 14.4x the budget -> page.
+      - eval_time: 100m
+        alertname: SLOErrorBudgetBurnFast
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              slo: app-availability
+            exp_annotations:
+              summary: "Error budget is burning fast (page)"
+              description: "The 99.5% availability SLO is burning its error budget more than 6x faster than sustainable. At this rate the 30-day budget is exhausted in under 5 days."
+              runbook_url: "https://github.com/JPMolina19/observability-lab/blob/main/docs/incident-postmortem-001.md"
+      - eval_time: 100m
+        alertname: HighErrorRate
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: "High application error rate"
+              description: "33.33% of application requests are returning HTTP 5xx errors (threshold 5%)."
+
+  # Scrape target disappears.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="observability-app", instance="app:5000"}'
+        values: '1 1 1 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: ApplicationDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: observability-app
+              instance: "app:5000"
+            exp_annotations:
+              summary: "Application is down"
+              description: "Prometheus cannot scrape the application target app:5000."

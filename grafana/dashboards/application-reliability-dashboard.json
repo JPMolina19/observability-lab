@@ -10,7 +10,7 @@
   "editable": true,
   "graphTooltip": 1,
   "schemaVersion": 41,
-  "version": 1,
+  "version": 2,
   "time": {
     "from": "now-6h",
     "to": "now"
@@ -333,7 +333,7 @@
       "id": 4,
       "type": "stat",
       "title": "Application Availability",
-      "description": "",
+      "description": "Per-target scrape status (up). In Kubernetes there is one value per app pod.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -692,8 +692,8 @@
     {
       "id": 8,
       "type": "stat",
-      "title": "Availability SLO",
-      "description": "",
+      "title": "Availability SLI (30d)",
+      "description": "Share of HTTP requests that did not return 5xx over the last 30 days.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -758,7 +758,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(avg_over_time(up{job=\"observability-app\"}[30d])) * 100",
+          "expr": "(1 - slo:app_request_errors:ratio_rate30d) * 100",
           "legendFormat": "__auto",
           "range": true
         }
@@ -768,7 +768,7 @@
       "id": 10,
       "type": "gauge",
       "title": "Error Budget Remaining",
-      "description": "",
+      "description": "Percentage of the 30-day error budget (0.5% of requests) still available. Negative means the SLO is breached.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -844,7 +844,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "(\n(\navg(avg_over_time(up{job=\"observability-app\"}[30d]))\n- 0.995\n)\n/\n(1 - 0.995)\n) * 100",
+          "expr": "(1 - slo:app_request_errors:ratio_rate30d / 0.005) * 100",
           "legendFormat": "__auto",
           "range": true
         }
@@ -854,7 +854,7 @@
       "id": 9,
       "type": "stat",
       "title": "SLO Target",
-      "description": "",
+      "description": "Availability objective: 99.5% of requests succeed.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -910,7 +910,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "99.5",
+          "expr": "slo:app_availability:objective * 100",
           "legendFormat": "__auto",
           "range": true
         }
@@ -920,7 +920,7 @@
       "id": 11,
       "type": "stat",
       "title": "SLO Status",
-      "description": "",
+      "description": "HEALTHY while 30-day availability is at or above the 99.5% objective.",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -994,7 +994,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(avg_over_time(up{job=\"observability-app\"}[30d])) >= bool 0.995",
+          "expr": "(1 - slo:app_request_errors:ratio_rate30d) >= bool 0.995",
           "legendFormat": "__auto",
           "range": true
         }
@@ -1086,6 +1086,121 @@
       ]
     },
     {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Error Budget Burn Rate",
+      "description": "How fast the error budget is being consumed (1 = exactly on budget). Fast-burn page fires at 14.4x (1h) or 6x (6h).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 24,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line+area"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 6
+              },
+              {
+                "color": "red",
+                "value": 14.4
+              }
+            ]
+          },
+          "unit": "suffix:x",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.0",
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "range": true,
+          "expr": "slo:app_request_errors:ratio_rate1h / 0.005",
+          "legendFormat": "1h burn rate"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "range": true,
+          "expr": "slo:app_request_errors:ratio_rate6h / 0.005",
+          "legendFormat": "6h burn rate"
+        }
+      ]
+    },
+    {
       "id": 13,
       "type": "timeseries",
       "title": "Synthetic Response Time",
@@ -1096,7 +1211,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 48,
+        "y": 56,
         "w": 12,
         "h": 8
       },
@@ -1199,7 +1314,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 48,
+        "y": 56,
         "w": 12,
         "h": 8
       },
