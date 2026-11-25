@@ -81,9 +81,10 @@ Completed:
 - Implemented Alertmanager routing.
 - Created Grafana reliability dashboard.
 - Added SLO monitoring.
+- Implemented synthetic monitoring.
+- Moved to a request-based SLO with multi-window, multi-burn-rate alerts.
+- Deployed on Kubernetes with liveness/readiness probes, so a crashed app container is restarted automatically.
 
 Future improvements:
 
-- Add automated recovery actions.
 - Integrate external notification channels.
-- Implement synthetic monitoring.
